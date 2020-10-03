@@ -36,6 +36,9 @@ namespace ScoreBoardV2
         int setTimeMin = 0;
         int setTimeSec = 0;
 
+        List<PlayerControl> homePlayers;
+        List<PlayerControl> awayPlayers;
+
         public Form1()
         {
             InitializeComponent();
@@ -106,6 +109,12 @@ namespace ScoreBoardV2
             timer.Tick += Timer_Tick;
             timer.Interval = 500;
             timer.Start();
+
+            if (splitContainer1.Width != 0)
+                splitContainer1.SplitterDistance = splitContainer1.Width / 2;
+
+            homePlayers = new List<PlayerControl>();
+            awayPlayers = new List<PlayerControl>();
         }
 
         private void Timer_Tick(object sender, EventArgs e)
@@ -444,6 +453,100 @@ namespace ScoreBoardV2
         {
             int.TryParse(textBox7.Text, out int margin);
             viewWindow.ScreenArea.UpdateMargin(margin);
+        }
+
+        private void button8_Click(object sender, EventArgs e)// add home player
+        {
+            if (!string.IsNullOrWhiteSpace(textBox8.Text) && !string.IsNullOrWhiteSpace(textBox9.Text))
+            {
+                PlayerControl newPlayer = new PlayerControl();
+                newPlayer.PlayerName = textBox9.Text;
+                int.TryParse(textBox8.Text, out int number);
+                newPlayer.PlayerNumber = number;
+                newPlayer.Parent = splitContainer1.Panel1;
+                newPlayer.Dock = DockStyle.Top;
+                newPlayer.RedCardClick += redCardClick;
+                newPlayer.YellowCardClick += yellowCardClick;
+                newPlayer.GoalClick += goalClick;
+                homePlayers.Add(newPlayer);
+                textBox8.Text = "";
+                textBox9.Text = "";
+            }
+            else
+                MessageBox.Show("Invalid player info");
+        }
+
+        private void button13_Click(object sender, EventArgs e)// add away player
+        {
+            if (!string.IsNullOrWhiteSpace(textBox11.Text) && !string.IsNullOrWhiteSpace(textBox10.Text))
+            {
+                PlayerControl newPlayer = new PlayerControl();
+                newPlayer.PlayerName = textBox10.Text;
+                int.TryParse(textBox11.Text, out int number);
+                newPlayer.PlayerNumber = number;
+                newPlayer.Parent = splitContainer1.Panel2;
+                newPlayer.Dock = DockStyle.Top;
+                newPlayer.RedCardClick += redCardClick;
+                newPlayer.YellowCardClick += yellowCardClick;
+                newPlayer.GoalClick += goalClick;
+                awayPlayers.Add(newPlayer);
+                textBox10.Text = "";
+                textBox11.Text = "";
+            }
+            else
+                MessageBox.Show("Invalid player info");
+        }
+
+        private void redCardClick(object sender, EventArgs e)
+        {
+            PlayerControl caller = sender as PlayerControl;
+            MessageBox.Show(caller.PlayerName + " with number " + caller.PlayerNumber.ToString() + " got red card");
+        }
+
+        private void yellowCardClick(object sender, EventArgs e)
+        {
+
+        }
+
+        private void goalClick(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button14_Click(object sender, EventArgs e)// Delete home player
+        {
+            int.TryParse(textBox12.Text, out int number);
+
+            foreach(PlayerControl player in homePlayers.ToList())
+            {
+                if(player.PlayerNumber == number)
+                {
+                    homePlayers.Remove(player);
+                    player.RedCardClick -= redCardClick;
+                    player.YellowCardClick -= yellowCardClick;
+                    player.GoalClick -= goalClick;
+                    player.Dispose();
+                    textBox12.Text = "";
+                }
+            }
+        }
+
+        private void button15_Click(object sender, EventArgs e)
+        {
+            int.TryParse(textBox13.Text, out int number);
+
+            foreach (PlayerControl player in awayPlayers.ToList())
+            {
+                if (player.PlayerNumber == number)
+                {
+                    awayPlayers.Remove(player);
+                    player.RedCardClick -= redCardClick;
+                    player.YellowCardClick -= yellowCardClick;
+                    player.GoalClick -= goalClick;
+                    player.Dispose();
+                    textBox13.Text = "";
+                }
+            }
         }
     }
 }
