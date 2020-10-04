@@ -39,6 +39,14 @@ namespace ScoreBoardV2
         List<PlayerControl> homePlayers;
         List<PlayerControl> awayPlayers;
 
+        int goalMinute = 0;
+
+        int halfMin = 45;
+        int halfSec = 0;
+
+        int fullMin = 90;
+        int fullSec = 0;
+
         public Form1()
         {
             InitializeComponent();
@@ -122,10 +130,17 @@ namespace ScoreBoardV2
             if (viewWindow.ScreenArea.GameTimeElapsed.Seconds >= 30 && viewWindow.ScreenArea.GameTimeElapsed.Seconds <= 60)
             {
                 timeLabel.Text = String.Format("{0}:{1}", (viewWindow.ScreenArea.GameTimeElapsed.TotalMinutes - 1).ToString("00"), viewWindow.ScreenArea.GameTimeElapsed.Seconds.ToString("00"));
+                goalMinute =(int) viewWindow.ScreenArea.GameTimeElapsed.TotalMinutes - 1;
             }
             else
             {
                 timeLabel.Text = String.Format("{0}:{1}", viewWindow.ScreenArea.GameTimeElapsed.TotalMinutes.ToString("00"), viewWindow.ScreenArea.GameTimeElapsed.Seconds.ToString("00"));
+                goalMinute = (int)viewWindow.ScreenArea.GameTimeElapsed.TotalMinutes;
+            }
+
+            if(viewWindow.ScreenArea.GameTimeElapsed.Seconds > 0)
+            {
+                goalMinute += 1;
             }
         }
 
@@ -147,7 +162,11 @@ namespace ScoreBoardV2
             homeScoreLabel.Text = homeScore.ToString();
             awayScoreLabel.Text = awayScore.ToString();
 
-            autoStopTimer_CheckedChanged(this, EventArgs.Empty);
+            textBox21.Text = halfMin.ToString("00");
+            textBox20.Text = halfSec.ToString("00");
+            textBox23.Text = fullMin.ToString("00");
+            textBox22.Text = fullSec.ToString("00");
+
         }
 
         private void openScreenButton_Click(object sender, EventArgs e)
@@ -326,41 +345,6 @@ namespace ScoreBoardV2
             viewWindow.ScreenArea.ResetTimer();
         }
 
-        private void autoStopTimer_CheckedChanged(object sender, EventArgs e)
-        {
-            if (autoStopTimer.Checked)
-            {
-                viewWindow.ScreenArea.StopTimerAt(minToStop, secToStop);
-            }
-            else
-            {
-                viewWindow.ScreenArea.ResetStopAt();
-            }
-
-            if(viewWindow.ScreenArea.StopAtTimeIsActive)
-            {
-                numericUpDown1.Enabled = true;
-                numericUpDown2.Enabled = true;
-            }
-            else
-            {
-                numericUpDown1.Enabled = false;
-                numericUpDown2.Enabled = false;
-            }
-        }
-
-        private void numericUpDown1_ValueChanged(object sender, EventArgs e)
-        {
-            minToStop = (int)numericUpDown1.Value;
-            viewWindow.ScreenArea.StopTimerAt(minToStop, secToStop);
-        }
-
-        private void numericUpDown2_ValueChanged(object sender, EventArgs e)
-        {
-            secToStop = (int)numericUpDown2.Value;
-            viewWindow.ScreenArea.StopTimerAt(minToStop, secToStop);
-        }
-
         private void button4_Click(object sender, EventArgs e) // home image
         {
             OpenFileDialog dialog = new OpenFileDialog();
@@ -452,7 +436,7 @@ namespace ScoreBoardV2
         private void textBox7_TextChanged(object sender, EventArgs e)
         {
             int.TryParse(textBox7.Text, out int margin);
-            viewWindow.ScreenArea.UpdateMargin(margin);
+            viewWindow.ScreenArea.UpdateMarginTop(margin);
         }
 
         private void button8_Click(object sender, EventArgs e)// add home player
@@ -465,8 +449,6 @@ namespace ScoreBoardV2
                 newPlayer.PlayerNumber = number;
                 newPlayer.Parent = splitContainer1.Panel1;
                 newPlayer.Dock = DockStyle.Top;
-                newPlayer.RedCardClick += redCardClick;
-                newPlayer.YellowCardClick += yellowCardClick;
                 newPlayer.GoalClick += goalClick;
                 homePlayers.Add(newPlayer);
                 textBox8.Text = "";
@@ -486,8 +468,6 @@ namespace ScoreBoardV2
                 newPlayer.PlayerNumber = number;
                 newPlayer.Parent = splitContainer1.Panel2;
                 newPlayer.Dock = DockStyle.Top;
-                newPlayer.RedCardClick += redCardClick;
-                newPlayer.YellowCardClick += yellowCardClick;
                 newPlayer.GoalClick += goalClick;
                 awayPlayers.Add(newPlayer);
                 textBox10.Text = "";
@@ -497,20 +477,20 @@ namespace ScoreBoardV2
                 MessageBox.Show("Invalid player info");
         }
 
-        private void redCardClick(object sender, EventArgs e)
-        {
-            PlayerControl caller = sender as PlayerControl;
-            MessageBox.Show(caller.PlayerName + " with number " + caller.PlayerNumber.ToString() + " got red card");
-        }
-
-        private void yellowCardClick(object sender, EventArgs e)
-        {
-
-        }
-
         private void goalClick(object sender, EventArgs e)
         {
+            PlayerControl caller = sender as PlayerControl;
 
+            if(homePlayers.Contains(caller))
+            {
+                viewWindow.ScreenArea.AddHomeScore(caller.PlayerName, goalMinute);
+                button9_Click(button9, EventArgs.Empty);
+            }
+            if(awayPlayers.Contains(caller))
+            {
+                button12_Click(button12, EventArgs.Empty);
+                viewWindow.ScreenArea.AddAwayScore(caller.PlayerName, goalMinute);
+            }
         }
 
         private void button14_Click(object sender, EventArgs e)// Delete home player
@@ -522,8 +502,6 @@ namespace ScoreBoardV2
                 if(player.PlayerNumber == number)
                 {
                     homePlayers.Remove(player);
-                    player.RedCardClick -= redCardClick;
-                    player.YellowCardClick -= yellowCardClick;
                     player.GoalClick -= goalClick;
                     player.Dispose();
                     textBox12.Text = "";
@@ -540,13 +518,104 @@ namespace ScoreBoardV2
                 if (player.PlayerNumber == number)
                 {
                     awayPlayers.Remove(player);
-                    player.RedCardClick -= redCardClick;
-                    player.YellowCardClick -= yellowCardClick;
                     player.GoalClick -= goalClick;
                     player.Dispose();
                     textBox13.Text = "";
                 }
             }
+        }
+
+        private void textBox14_TextChanged(object sender, EventArgs e)
+        {
+            int.TryParse(textBox14.Text, out int margin);
+            viewWindow.ScreenArea.UpdateMarginSide(margin);
+        }
+
+        private void textBox15_TextChanged(object sender, EventArgs e)
+        {
+            int.TryParse(textBox15.Text, out int margin);
+            viewWindow.ScreenArea.UpdateFontMargin(margin);
+        }
+
+        private void button16_Click(object sender, EventArgs e)
+        {
+            int.TryParse(textBox16.Text, out int number);
+            int.TryParse(textBox17.Text, out int minute);
+
+            string name = "";
+            foreach(PlayerControl player in homePlayers)
+            {
+                if(player.PlayerNumber == number)
+                {
+                    name = player.PlayerName;
+                }
+            }
+
+            viewWindow.ScreenArea.AddHomeScore(name, minute);
+        }
+
+        private void button17_Click(object sender, EventArgs e)
+        {
+            int.TryParse(textBox19.Text, out int number);
+            int.TryParse(textBox18.Text, out int minute);
+
+            string name = "";
+            foreach (PlayerControl player in awayPlayers)
+            {
+                if (player.PlayerNumber == number)
+                {
+                    name = player.PlayerName;
+                }
+            }
+
+            viewWindow.ScreenArea.AddAwayScore(name, minute);
+
+        }
+
+        private void button18_Click(object sender, EventArgs e)
+        {
+            DialogResult result = MessageBox.Show("Are you sure you want to reset names", "Warning", MessageBoxButtons.YesNo);
+            if (result == DialogResult.Yes)
+            {
+                viewWindow.ScreenArea.ResetHomePlayers();
+            }
+        }
+
+        private void button19_Click(object sender, EventArgs e)
+        {
+            DialogResult result = MessageBox.Show("Are you sure you want to reset names", "Warning", MessageBoxButtons.YesNo);
+            if (result == DialogResult.Yes)
+            {
+                viewWindow.ScreenArea.ResetAwayPlayers();
+            }
+        }
+
+        private void textBox21_TextChanged(object sender, EventArgs e)
+        {
+            int.TryParse(textBox21.Text, out int halfm);
+            halfMin = halfm;
+            viewWindow.ScreenArea.SetHalfTime(halfMin, halfSec);
+        }
+
+        private void textBox20_TextChanged(object sender, EventArgs e)
+        {
+            int.TryParse(textBox20.Text, out int halfs);
+            halfSec = halfs;
+            viewWindow.ScreenArea.SetHalfTime(halfMin, halfSec);
+        }
+
+        private void textBox23_TextChanged(object sender, EventArgs e)
+        {
+            int.TryParse(textBox23.Text, out int fullm);
+            fullMin = fullm;
+            viewWindow.ScreenArea.SetFullTime(fullMin, fullSec);
+        }
+
+        private void textBox22_TextChanged(object sender, EventArgs e)
+        {
+            int.TryParse(textBox22.Text, out int fulls);
+            fullSec = fulls;
+            viewWindow.ScreenArea.SetFullTime(fullMin, fullSec);
         }
     }
 }

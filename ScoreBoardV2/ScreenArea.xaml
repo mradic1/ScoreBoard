@@ -9,26 +9,26 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <Image x:Name="img1" Grid.Row="1" Grid.Column="0" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,20,0,0" />
-        <Image x:Name="img2" Grid.Row="1" Grid.Column="1" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,20,0,0"/>
+        <Image x:Name="img1" Grid.Row="0" Grid.Column="0" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="0,20,0,0"/>
+        <Image x:Name="img2" Grid.Row="0" Grid.Column="3" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,20,0,0"/>
 
-        <Label x:Name="name1Label" Grid.Column="0" Content="Name 1" HorizontalAlignment="Center" VerticalAlignment="Top" />
-        <Label x:Name="name2Label" Grid.Column="1" Content="Name 2" HorizontalAlignment="Center" VerticalAlignment="Top" />
+        <Label x:Name="score1Label" Grid.Row="0" Grid.Column="1" Content="0" HorizontalAlignment="Left"  VerticalAlignment="Center"/>
+        <Label x:Name="score2Label" Grid.Row="0" Grid.Column="2" Content="0" HorizontalAlignment="Right"  VerticalAlignment="Center"/>
 
-        <Label x:Name="score1Label" Grid.Row="2" Grid.Column="0" Content="0" HorizontalAlignment="Center"  VerticalAlignment="Center"/>
-        <Label x:Name="score2Label" Grid.Row="2" Grid.Column="1" Content="0" HorizontalAlignment="Center"  VerticalAlignment="Center"/>
-
-        <Label x:Name="timeLabel" Content="00:00" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="2"/>
+        <TextBlock x:Name="goal1" Grid.Row="1" Grid.Column="0"/>
+        <TextBlock x:Name="goal2" Grid.Row="1" Grid.Column="3"/>
+        <Label x:Name="timeLabel" Content="00:00" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="1" Grid.Row="3" Grid.ColumnSpan="2"/>
 
     </Grid>
 </UserControl>

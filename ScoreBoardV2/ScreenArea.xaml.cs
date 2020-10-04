@@ -28,6 +28,10 @@ namespace ScoreBoardV2
         TimeSpan GlobalTime;
         TimeSpan OffsetTime;
 
+
+        Thickness img1Margin = new Thickness(0, 0, 0, 0);
+        Thickness img2Margin = new Thickness(0, 0, 0, 0);
+
         public bool StopAtTimeIsActive
         {
             get
@@ -50,8 +54,14 @@ namespace ScoreBoardV2
         private FontFamily ScoreFont;
         private FontFamily TimeFont;
 
-        int minToStop = 0;
-        int secToStop = 0;
+
+        int halfMin = 0;
+        int halfSec = 0;
+
+        int fullMin = 0;
+        int fullSec = 0;
+
+        bool halfHappened = false;
 
         public string HomeName
         {
@@ -59,7 +69,6 @@ namespace ScoreBoardV2
             set 
             { 
                 homeName = value;
-                name1Label.Content = homeName;
             }
         }
 
@@ -69,7 +78,6 @@ namespace ScoreBoardV2
             set 
             { 
                 awayName = value;
-                name2Label.Content = awayName;
             }
         }
         
@@ -138,8 +146,8 @@ namespace ScoreBoardV2
 
             this.Background = BackColor;
 
-            name1Label.Foreground = TextColor;
-            name2Label.Foreground = TextColor;
+            goal1.Foreground = TextColor;
+            goal2.Foreground = TextColor;
             score1Label.Foreground = TextColor;
             score2Label.Foreground = TextColor;
             timeLabel.Foreground = TextColor;
@@ -148,10 +156,10 @@ namespace ScoreBoardV2
             ScoreFont = new FontFamily(args.ScoreFont.FontName);
             NameFont = new FontFamily(args.NameFont.FontName);
 
-            name1Label.FontFamily = NameFont;
-            name2Label.FontFamily = NameFont;
-            name1Label.FontSize = args.NameFont.FontSize;
-            name2Label.FontSize = args.NameFont.FontSize;
+            goal1.FontFamily = NameFont;
+            goal2.FontFamily = NameFont;
+            goal1.FontSize = args.NameFont.FontSize;
+            goal2.FontSize = args.NameFont.FontSize;
 
             score1Label.FontFamily = ScoreFont;
             score2Label.FontFamily = ScoreFont;
@@ -171,20 +179,30 @@ namespace ScoreBoardV2
             {
                 timeLabel.Content = String.Format("{0}:{1}", (GlobalTime.TotalMinutes - 1).ToString("00"), GlobalTime.Seconds.ToString("00"));
 
-                if ((int)GlobalTime.TotalMinutes - 1 == minToStop && (int)GlobalTime.Seconds == secToStop && stopAtTime)
+                if ((int)GlobalTime.TotalMinutes - 1 == halfMin && (int)GlobalTime.Seconds == halfSec && !halfHappened && GameTime.IsRunning)
                 {
                     StopTimer();
-                    stopAtTime = false;
+                    halfHappened = true;
+                }
+
+                if((int)GlobalTime.TotalMinutes - 1 == fullMin && (int)GlobalTime.Seconds == fullSec)
+                {
+                    StopTimer();
                 }
             }
             else
             {
                 timeLabel.Content = String.Format("{0}:{1}", GlobalTime.TotalMinutes.ToString("00"), GlobalTime.Seconds.ToString("00"));
 
-                if ((int)GlobalTime.TotalMinutes == minToStop &&(int)GlobalTime.Seconds == secToStop && stopAtTime)
+                if ((int)GlobalTime.TotalMinutes == halfMin && (int)GlobalTime.Seconds == halfSec && !halfHappened && GameTime.IsRunning)
                 {
                     StopTimer();
-                    stopAtTime = false;
+                    halfHappened = true;
+                }
+
+                if((int)GlobalTime.TotalMinutes == fullMin && (int)GlobalTime.Seconds == fullSec)
+                {
+                    StopTimer();
                 }
             }
         }
@@ -203,13 +221,19 @@ namespace ScoreBoardV2
         {
             GameTime.Reset();
             OffsetTime = new TimeSpan(0,0,0);
+            halfHappened = false;
         }
 
-        public void StopTimerAt(int minutes, int seconds)
+        public void SetHalfTime(int min, int sec)
         {
-            stopAtTime = true;
-            minToStop = minutes;
-            secToStop = seconds;
+            halfMin = min;
+            halfSec = sec;
+        }
+
+        public void SetFullTime(int min, int sec)
+        {
+            fullMin = min;
+            fullSec = sec;
         }
 
         public void ResetStopAt()
@@ -234,10 +258,55 @@ namespace ScoreBoardV2
             OffsetTime = new TimeSpan(0, min, sec);
         }
 
-        public void UpdateMargin(int margin)
+        public void UpdateMarginTop(int margin)
         {
-            img1.Margin = new Thickness(0, margin, 0, 0);
-            img2.Margin = new Thickness(0, margin, 0, 0);
+            img1Margin.Top = margin;
+            img2Margin.Top = margin;
+            img1.Margin = img1Margin;
+            img2.Margin = img2Margin;
+            goal1.Margin = img1Margin;
+            goal2.Margin = img2Margin;
+        }
+
+        public void UpdateMarginSide(int margin)
+        {
+            img1Margin.Left = margin;
+            img2Margin.Right = margin;
+            img1.Margin = img1Margin;
+            img2.Margin = img2Margin;
+            goal1.Margin = img1Margin;
+            goal2.Margin = img2Margin;
+        }
+
+        public void UpdateFontMargin(int margin)
+        {
+            Thickness margin1 = new Thickness();
+            margin1.Right = margin;
+            Thickness margin2 = new Thickness();
+            margin2.Left = margin;
+
+            score1Label.Margin = margin1;
+            score2Label.Margin = margin2;
+        }
+
+        public void AddHomeScore(string name, int minute)
+        {
+            goal1.Text += String.Format("{0}' - {1}\n", minute, name);
+        }
+
+        public void AddAwayScore(string name, int minute)
+        {
+            goal2.Text += String.Format("{0}' - {1}\n", minute, name);
+        }
+
+        public void ResetHomePlayers()
+        {
+            goal1.Text = "";
+        }
+
+        public void ResetAwayPlayers()
+        {
+            goal2.Text = "";
         }
     }
 }

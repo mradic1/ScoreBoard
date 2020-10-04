@@ -35,30 +35,11 @@ namespace ScoreBoardV2
                 label1.Text = _playerNumber.ToString();
             }
         }
-
-        public EventHandler RedCardClick;
-        public EventHandler YellowCardClick;
         public EventHandler GoalClick;
 
         public PlayerControl()
         {
             InitializeComponent();
-        }
-
-        private void button3_Click(object sender, EventArgs e)
-        {
-            if(RedCardClick != null)
-            {
-                RedCardClick.Invoke(this, EventArgs.Empty);
-            }
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-            if(YellowCardClick != null)
-            {
-                YellowCardClick.Invoke(this, EventArgs.Empty);
-            }
         }
 
         private void button1_Click(object sender, EventArgs e)
